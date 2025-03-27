@@ -1,6 +1,6 @@
 //! Process management syscalls
 use crate::{
-    task::{exit_current_and_run_next, suspend_current_and_run_next},
+    task::{exit_current_and_run_next, suspend_current_and_run_next,get_syscall_times,count_syscall_times},
     timer::get_time_us,
 };
 
@@ -11,7 +11,7 @@ pub struct TimeVal {
     pub usec: usize,
 }
 
-pub static mut MY_COUNT: [u8; 411] = [0; 411];
+
 
 /// task exits and submit an exit code
 pub fn sys_exit(exit_code: i32) -> ! {
@@ -57,12 +57,14 @@ pub fn sys_trace(_trace_request: usize, _id: usize, _data: usize) -> isize {
             }
         }
         2 => {
-            unsafe{
-                MY_COUNT[_id] as isize
-            }
+            get_syscall_times(_id)
         }
         _ =>{
             -1
         }
     }
+}
+
+pub fn sys_syscall_count(syscall_id:usize) {
+    count_syscall_times(syscall_id);
 }
